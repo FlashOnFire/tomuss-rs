@@ -1,0 +1,12 @@
+[package]
+name = "tomuss-rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lyon1_cas_client = {git = "https://github.com/FlashOnFire/lyon1_cas_client"}
+soup = "0.5.1"
+regex = "1.11.1"
+
+[dev-dependencies]
+rust_dotenv = "0.1.2"
