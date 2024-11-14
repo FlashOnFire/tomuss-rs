@@ -1,5 +1,4 @@
-use crate::structs::Grade;
-use crate::structs::Person;
+use crate::structs::{Grade, JustifiedAbsence, Person};
 use serde::de::{Error, Unexpected};
 use serde::{de, Deserialize, Deserializer};
 use std::str::FromStr;
@@ -38,18 +37,6 @@ impl<'de> Deserialize<'de> for Person {
     }
 }
 
-pub(crate) fn deser_names_vec<'de, D>(deserializer: D) -> Result<Vec<Person>, D::Error>
-where
-    D: de::Deserializer<'de>,
-{
-    let vec: Vec<Vec<_>> = serde::Deserialize::deserialize(deserializer)?;
-    if vec.is_empty() || vec.len() != 2 || !vec.get(1).unwrap().is_empty() {
-        return Err(D::Error::custom("Grades deserializing error"));
-    }
-
-    Ok(vec.iter().flatten().cloned().collect())
-}
-
 pub(crate) fn deser_int_as_bool<'de, D>(deserializer: D) -> Result<bool, D::Error>
 where
     D: de::Deserializer<'de>,
@@ -66,7 +53,7 @@ where
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct WrappedStrF32(f32);
+pub struct WrappedStrF32(f32);
 impl<'de> Deserialize<'de> for WrappedStrF32 {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -77,5 +64,23 @@ impl<'de> Deserialize<'de> for WrappedStrF32 {
             Ok(value) => Ok(Self(value)),
             Err(_) => Err(D::Error::invalid_value(Unexpected::Str(&str), &"f32")),
         }
+    }
+}
+
+impl<'de> Deserialize<'de> for JustifiedAbsence {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let vec: Vec<String> = serde::Deserialize::deserialize(deserializer)?;
+        if vec.len() != 3 {
+            return Err(D::Error::invalid_length(vec.len(), &"3"));
+        }
+
+        Ok(Self {
+            start: vec.get(0).unwrap().clone(),
+            end: vec.get(1).unwrap().clone(),
+            comment: vec.get(2).unwrap().clone(),
+        })
     }
 }

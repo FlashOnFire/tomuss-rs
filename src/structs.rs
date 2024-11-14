@@ -17,7 +17,7 @@ pub struct TomussData {
     advertising: bool,
     #[serde(rename = "DA")]
     da: Vec<String>,
-    abjs: Vec<serde_json::Value>,
+    abjs: Vec<JustifiedAbsence>,
     pub(crate) login: String,
     #[serde(rename = "RdV")]
     rdv: String,
@@ -39,7 +39,7 @@ pub struct TomussData {
     picture_upload: bool,
     preferences: HashMap<String, i32>,
     civilite: String,
-    names: Vec<String>,
+    names: Person,
     member_of: Vec<serde_json::Value>,
 
     #[serde(rename = "IA_scol")]
@@ -179,4 +179,11 @@ enum GradeType {
     Enumeration,
     Upload,
     Max,
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct JustifiedAbsence {
+    pub(crate) start: String,
+    pub(crate) end: String,
+    pub(crate) comment: String,
 }
