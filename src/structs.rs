@@ -41,7 +41,7 @@ pub struct TomussData {
     preferences: Preferences,
     civilite: String,
     names: Person,
-    member_of: Vec<serde_json::Value>,
+    pub(crate) member_of: MemberOf,
     #[serde(rename = "IA_scol")]
     ia_scol: String,
     tables: String,
@@ -221,4 +221,16 @@ struct Preferences {
     hide_grade: bool,
     working_hours_per_week: u32,
     sunburst_hide_layers: u32, // ?? What is this
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub(crate) struct MemberOf {
+    ldap_groups: Vec<LDAPGroup>,
+    other_groups: Vec<(String, String)>,
+}
+
+#[derive(Clone, Debug)]
+pub(crate) struct LDAPGroup {
+    pub(crate) common_name: String,
+    pub(crate) organizational_unit: String,
 }

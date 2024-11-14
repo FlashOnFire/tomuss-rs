@@ -1,7 +1,9 @@
-use crate::structs::{Grade, JustifiedAbsence, Person};
+use crate::structs::{Grade, JustifiedAbsence, LDAPGroup, Person};
+use regex::Regex;
 use serde::de::{Error, Unexpected};
 use serde::{de, Deserialize, Deserializer};
 use std::str::FromStr;
+use std::sync::LazyLock;
 
 pub(crate) fn deser_grades_vec<'de, D>(deserializer: D) -> Result<Vec<Grade>, D::Error>
 where
@@ -82,5 +84,32 @@ impl<'de> Deserialize<'de> for JustifiedAbsence {
             end: vec.get(1).unwrap().clone(),
             comment: vec.get(2).unwrap().clone(),
         })
+    }
+}
+
+const LDAP_GROUP_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r#"CN=(.+),OU=(.+)"#).unwrap());
+impl<'de> Deserialize<'de> for LDAPGroup {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let string = String::deserialize(deserializer)?;
+        match LDAP_GROUP_REGEX.captures(&string) {
+            None => Err(D::Error::invalid_value(
+                Unexpected::Str(&string),
+                &"ldap group format matching /CN=(.+),OU=(.+)/",
+            )),
+            Some(captures) => {
+                if captures.len() != 3 {
+                    return Err(D::Error::invalid_length(captures.len(), &"3"));
+                }
+
+                Ok(LDAPGroup {
+                    common_name: captures.get(1).unwrap().as_str().to_owned(),
+                    organizational_unit: captures.get(2).unwrap().as_str().to_owned(),
+                })
+            }
+        }
     }
 }
