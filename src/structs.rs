@@ -12,7 +12,8 @@ pub struct TomussData {
     message: String,
     more_on_suivi: String,
     logo: String,
-    go_home: i32,
+    #[serde(deserialize_with = "deser_int_as_bool")]
+    go_home: bool,
     grp_messages: Vec<String>,
     advertising: bool,
     #[serde(rename = "DA")]
@@ -26,7 +27,7 @@ pub struct TomussData {
     semesters: HashMap<String, String>,
     signature: String,
     #[serde(rename = "FST")]
-    fst: serde_json::Value,
+    fst: Vec<String>,
     #[serde(rename = "BilanAPOGEE")]
     bilan_apogee: String,
     set_referent: String,
@@ -37,39 +38,29 @@ pub struct TomussData {
     edt: String,
     //ACLS null
     picture_upload: bool,
-    preferences: HashMap<String, i32>,
+    preferences: Preferences,
     civilite: String,
     names: Person,
     member_of: Vec<serde_json::Value>,
-
     #[serde(rename = "IA_scol")]
     ia_scol: String,
     tables: String,
     notes: String,
     students: String,
-
     #[serde(rename = "FFSU")]
     ffsu: String,
-
     #[serde(rename = "TT")]
     tt: String,
-
     #[serde(rename = "RSS")]
     rss: String,
-
     #[serde(rename = "RSSStream")]
     rss_stream: Vec<serde_json::Value>,
-
     questionnaire: String,
-
     #[serde(rename = "UETree")]
     ue_tree: HashMap<String, String>,
-
     #[serde(rename = "ReferentNP")]
     referent_np: String,
-
     referent: serde_json::Value,
-
     mails: String,
 
     #[serde(rename = "choix_TVL")]
@@ -121,7 +112,8 @@ pub(crate) struct Grade {
     code: i32,
     bookmark: i32,
     dates: Vec<f32>,
-    official_ue: i32,
+    #[serde(deserialize_with = "deser_int_as_bool")]
+    official_ue: bool,
     ue: String,
     year: i32,
     columns: Vec<GradeColumn>,
@@ -167,6 +159,8 @@ struct GradeColumn {
     enumeration: Option<String>,
     cell_writable: Option<String>,
     grade_type: Option<i32>,
+    minmax: Option<serde_json::Value>,
+    locked: Option<i32>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -186,4 +180,45 @@ pub(crate) struct JustifiedAbsence {
     pub(crate) start: String,
     pub(crate) end: String,
     pub(crate) comment: String,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+struct Preferences {
+    #[serde(deserialize_with = "deser_int_as_bool")]
+    black_and_white: bool,
+    #[serde(deserialize_with = "deser_int_as_bool")]
+    can_bring_a_pc: bool,
+    commute_time: u32,
+    #[serde(deserialize_with = "deser_int_as_bool")]
+    compact_suivi: bool,
+    #[serde(deserialize_with = "deser_int_as_bool")]
+    green_prst: bool,
+    #[serde(deserialize_with = "deser_int_as_bool")]
+    hide_civilite: bool,
+    #[serde(deserialize_with = "deser_int_as_bool")]
+    hide_picture: bool,
+    #[serde(deserialize_with = "deser_int_as_bool")]
+    highlight_grade: bool,
+    #[serde(deserialize_with = "deser_int_as_bool")]
+    private_suivi: bool,
+    #[serde(deserialize_with = "deser_int_as_bool")]
+    recursive_formula: bool,
+    #[serde(deserialize_with = "deser_int_as_bool")]
+    show_empty: bool,
+    #[serde(deserialize_with = "deser_int_as_bool")]
+    uniform_width: bool,
+    #[serde(deserialize_with = "deser_int_as_bool")]
+    color_value: bool,
+    #[serde(deserialize_with = "deser_int_as_bool")]
+    hide_right_column: bool,
+    #[serde(deserialize_with = "deser_int_as_bool")]
+    big_text: bool,
+    #[serde(deserialize_with = "deser_int_as_bool")]
+    no_teacher_color: bool,
+    #[serde(deserialize_with = "deser_int_as_bool")]
+    big_box: bool,
+    #[serde(deserialize_with = "deser_int_as_bool")]
+    hide_grade: bool,
+    working_hours_per_week: u32,
+    sunburst_hide_layers: u32, // ?? What is this
 }
